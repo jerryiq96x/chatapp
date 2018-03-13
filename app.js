@@ -28,7 +28,7 @@ var wsServer = new WebSocketServer({
 //     path: "/message"
 // });
 
-w
+// w
 wsServer.on('request', function(request){
     var conn = request.accept(null, request.origin);
     // var index = clientsNhap.push(conn)-1;
