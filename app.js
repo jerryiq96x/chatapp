@@ -161,6 +161,7 @@ wsServer.on('request', function(request){
                             customerClients[ct_cut].splice(findIndex,1);
 
                         var json_client = JSON.stringify(customerClients[ct_cut]||[]);
+                        if(customerNhanvien[ct_cut])
                         for(let i =0; i<customerNhanvien[ct_cut].length;i++)
                         {
                             for(let j =0;j<clients[customerNhanvien[ct_cut][i]].length;j++)
