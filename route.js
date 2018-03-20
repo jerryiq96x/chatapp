@@ -1,18 +1,19 @@
-var WebSocketServer = require('websocket').server;
-var http = require('http');
+var mysql = require('mysql');
+var  db = mysql.createConnection({
+    host: "localhost",
+    user: "root",
+    password: "",
+    database:"chatapp"
+});
+module.exports = function(app){
+    app.get('/listmessages', function(req,res){
+        console.log('vao roi');
+        db.connect();
+        db.query('select * from tbl_clients', function(err,rows, fields){
+            if(err) throw err;
 
-module.exports = function(app,server){
-    app.get('/box', function(req,res){
-        var server = http.createServer(function(req,res){
-
+                res.json(rows);
         });
-
-        // console.log(WebSocketServer);
-        var wsServer = new WebSocketServer({
-            httpServer: server
-        }); 
-        wsServer.on('request', function(request){
-            console.log('Connect from => ' + request.origin);
-        });
+        db.end();
     });
 }
