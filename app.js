@@ -206,7 +206,7 @@ wsServer.on('request', function(request){
                 db.query(q, function(err, rows, field){
                     if(err) throw err;
                     else
-                    { 
+                    {
                         if(rows)
                         {
                             for(let i=0;i<rows.length;i++)
@@ -232,6 +232,22 @@ wsServer.on('request', function(request){
                             console.log('update => ',rows.affectedRows);
                     });
                 }
+            }
+            else if(object.detectSite)
+            {
+                var json = object.detectSite;
+                var q = `SELECT c.PK_sCustomerID,pc.Status FROM tbl_customer as c
+                        INNER JOIN tbl_package_customer as pc ON c.PK_sCustomerID = pc.PK_sCustomerID
+                        WHERE c.PK_sCustomerID = ? AND c.sWebsite = ?`;
+                var condition = [json.ctId,json.site];
+                db.query(q,condition,function(err,rows,field){
+                    if(err) throw err;
+                    else
+                    {
+                        console.log('detectSite => ',rows);
+                        conn.sendUTF(JSON.stringify({type: 'siteDeteted', data: rows}));
+                    }
+                });
             }
             else{
                 var mess = JSON.parse(message.utf8Data);
