@@ -19,6 +19,7 @@ var  db = mysql.createConnection({
     password: "appchat",
     database:"dbcl_chatapp"
 });
+console.log('heroku');
 var server = http.createServer();
 
 var clients = [];
