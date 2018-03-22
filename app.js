@@ -5,11 +5,19 @@ var http = require('http');
 var helpers = require('./libs/helpers');
 var port = process.env.PORT || 1337;
 var mysql = require('mysql');
+// var  db = mysql.createConnection({
+//     // host: "localhost",
+//     host: '118.70.222.157',
+//     user: "root",
+//     password: "",
+//     database:"chatapp"
+// });
 var  db = mysql.createConnection({
-    host: "localhost",
-    user: "root",
-    password: "",
-    database:"chatapp"
+    // host: "localhost",
+    host: '118.70.222.157',
+    user: "chatapp",
+    password: "appchat",
+    database:"dbcl_chatapp"
 });
 var server = http.createServer();
 
