@@ -25,7 +25,7 @@ var masters = [];
 var history = [];
 var customerNhanvien = [];
 var customerClients = [];
-var AdminNhanvien = [];
+var clientsNhap = [];
 var helper = require('./libs/helpers');
 server.listen(port, function(){
     console.log('Server is listening on port + ' + port);
@@ -44,12 +44,10 @@ wsServer.on('request', function(request){
     var ct_cut = '';
     conn.on('message', function(message){
         var d =  new Date().toLocaleString("vi-AS", {timeZone: "Asia/Bangkok"});
-        // customerNhanvien
         if(message.type === 'utf8')
         {
             var object = JSON.parse(message.utf8Data);
-            if(object.createClient)
-            {
+            if(object.createClient){
                 //client connect
                 if(object.createClient.type==='master'){
                     var inObject = object.createClient;
@@ -73,24 +71,6 @@ wsServer.on('request', function(request){
                     else{
                         clients[inObject.nvId].push(conn);
                     }
-                    if(inObject.admin.isAd)
-                    {
-                        var adminIndex = AdminNhanvien.findIndex(i => i.id==inObject.nvId);
-                        if(adminIndex<0)
-                        {
-                            var obj = {
-                                name: inObject.admin.name,
-                                id: inObject.nvId
-                            };
-                            AdminNhanvien.push(obj);
-                        }
-                    }
-                    customerNhanvien[inObject.ctId].map((item)=>{
-                        clients[item].map((x)=>{
-                            x.sendUTF(JSON.stringify({type: 'updateListAdmin',data: AdminNhanvien}));
-                        });
-                    });
-                    // console.log('Quan ly => ', AdminNhanvien);
                     //lấy lại danh sách người dùng đang truy cập mỗi lần có NV kết nối
                     // if(customerClients[inObject.ctId])
                     // {
@@ -109,21 +89,6 @@ wsServer.on('request', function(request){
                             }
                         }
                     }
-                    // var q = `SELECT PK_sSubAccID,sName FROM tbl_sub_account WHERE PK_sSubAccID like '${inObject.nvId}';`
-                    // db.query(q,function(err,rows){
-                    //     if(err) throw err;
-                    //     else{
-                    //         if(rows.length>0)
-                    //         {
-                    //             var obj = {
-                    //                 name: rows[0]['sName'],
-                    //                 id: rows[0]['PK_sSubAccID']
-                    //             };
-                    //             AdminNhanvien.push(obj);
-                                
-                    //         }
-                    //     }
-                    // });
                     
                     // conn.sendUTF();
                 }
@@ -174,8 +139,7 @@ wsServer.on('request', function(request){
                 }
             }
             //client disconnect
-            else if(object.spliceClient)
-            {
+            else if(object.spliceClient){
                 // console.log('=========================BEFOR DELETE ++++++++++++++++++++++++++++');
                 // console.log('customerNhanvien => ',customerNhanvien);
                 // console.log('customerClients => ',customerClients);
@@ -211,18 +175,6 @@ wsServer.on('request', function(request){
                             }
                         }
                     }
-                    if(arrSplice.isAdmin)
-                    {
-                        var adminIndex = AdminNhanvien.findIndex(i => i.id==nv_cut);
-                        AdminNhanvien.splice(adminIndex,1);
-                        if(customerNhanvien[ct_cut])
-                        customerNhanvien[ct_cut].map((item)=>{
-                            clients[item].map((x)=>{
-                                x.sendUTF(JSON.stringify({type: 'updateListAdmin',data: AdminNhanvien}));
-                            });
-                        });
-                    }
-                    
                 }
                 else{
                     var findIndex = customerClients[ct_cut].indexOf(client_cut);
@@ -265,23 +217,14 @@ wsServer.on('request', function(request){
             }
             //query lấy list tin nhắn mới nhất + client:SELECT * FROM tbl_messenger where sSendTime IN (SELECT MAX(sSendTime) from tbl_messenger WHERE FK_sSubAccID like '92YugxBnw390' GROUP BY FK_sClientID)
             //get message when ever client connect
-            else if(object.getListMessage)
-            {
+            else if(object.getListMessage){
                 var json = object.getListMessage;
-                if(json.isAdmin)
-                {
-                    var q = `select * from tbl_messenger where FK_sClientID like '${ json.clId }' ORDER BY sSendTime ASC`;
-                }
-                else{
-                    var q = `select * from tbl_messenger where FK_sClientID like '${ json.clId }' AND FK_sSubAccID like '${ json.host }' ORDER BY sSendTime ASC`;
-                }
-                
-                
+                var q = `select * from tbl_messenger where FK_sClientID IN ('${ json.clId }') AND FK_sSubAccID IN ('${ json.host }') ORDER BY sSendTime ASC`;
                 db.query(q, function(err, rows, field){
                     if(err) throw err;
                     else
                     {
-                        if(rows.length>0)
+                        if(rows)
                         {
                             for(let i=0;i<rows.length;i++)
                             {
@@ -348,10 +291,9 @@ wsServer.on('request', function(request){
                                 json.title,
                                 stdTime,
                                 conn.remoteAddress,
-                                json.client,
-                                json.ctId
+                                json.client
                             ];
-                            var q  = `INSERT INTO tbl_history values(?,?,?,?,?,?,?)`;
+                            var q  = `INSERT INTO tbl_history values(?,?,?,?,?,?)`;
                         }
                         db.query(q,arr,function(err,rows,field){
                             if(err) throw err;
@@ -439,23 +381,7 @@ wsServer.on('request', function(request){
                     }
                 });
             }
-            else if(object.forward)
-            {
-                var json  = object.forward;
-                clients[json.who].map((item)=>{
-                    item.sendUTF(JSON.stringify({type:'forwardMessage',data:json}));
-                });
-            }
-            else if(object.forwardMessageEvent)
-            {
-                var json = object.forwardMessageEvent;
-                if(clients[json.nvID])
-                clients[json.nvID].map((item)=>{
-                    item.sendUTF(JSON.stringify({type: 'responseForward', data: json}));
-                });
-            }
-            else
-            {
+            else{
                 var mess = JSON.parse(message.utf8Data);
                 console.log('mess in => ',mess);
                 if(mess.to)
