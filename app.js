@@ -16,7 +16,7 @@ var  db = mysql.createConnection({
     host: "127.0.0.1",
     port: 82,
     user: "root",
-    password: '',
+    password: null,
     database: 'chatapp'
 });
 var server = http.createServer();
