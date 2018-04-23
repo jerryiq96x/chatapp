@@ -9,6 +9,7 @@ var  db = mysql.createConnection({
     // 
     // host: '123.30.185.44',
     // port: 2083,
+    
     // user: "qldttx_chatapp",
     // password: "Yenmiz!$!!96",
     // database:"qldttx_chatapp"
