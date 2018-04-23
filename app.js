@@ -315,6 +315,7 @@ wsServer.on('request', function(request){
                         INNER JOIN tbl_package_customer as pc ON c.PK_sCustomerID = pc.PK_sCustomerID
                         WHERE c.PK_sCustomerID = ? AND c.sWebsite = ?`;
                 var condition = [json.ctId,json.site];
+                console.log(db);
                 db.query(q,condition,function(err,rows,field){
                     if(err) throw err;
                     else
