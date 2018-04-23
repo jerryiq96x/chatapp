@@ -14,7 +14,7 @@ var  db = mysql.createConnection({
     // password: "Yenmiz!$!!96",
     // database:"qldttx_chatapp"
     host: "127.0.0.1",
-    // port: 82,
+    port: 82,
     user: "root",
     password: '',
     database: 'chatapp'
