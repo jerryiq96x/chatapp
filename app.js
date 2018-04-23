@@ -14,7 +14,7 @@ var  db = mysql.createConnection({
     // database:"qldttx_chatapp"
     host: "localhost",
     // port: 82,
-    user: "root",    
+    user: "root",
     password: '',
     database: 'chatapp'
 });
